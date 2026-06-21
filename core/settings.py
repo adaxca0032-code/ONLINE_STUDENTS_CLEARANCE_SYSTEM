@@ -18,7 +18,13 @@ SECRET_KEY = 'django-insecure-8woy^^+*w%n4t5!oow51wnoneh_uqn^2-gtm)-fx2==3))8*k#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# === LINK YAKO YA RENDER IMEONGEZWA HAPA KUTATUA KILE KOSA ===
+ALLOWED_HOSTS = [
+    'online-students-clearance-system.onrender.com',
+    '127.0.0.1',
+    'localhost',
+    '*'
+]
 
 
 # Application definition
