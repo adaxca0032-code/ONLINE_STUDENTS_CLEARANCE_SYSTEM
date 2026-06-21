@@ -1,0 +1,130 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import UserProfile, ClearanceRequest, DepartmentalApproval
+
+@login_required
+def dashboard_redirect_view(request):
+    """
+    Inamwelekeza mtumiaji kwenye dashboard husika kulingana na jukumu lake (Role).
+    """
+    try:
+        profile = request.user.userprofile
+        if profile.role == 'student':
+            return redirect('student_dashboard')
+        elif profile.role == 'officer':
+            return redirect('officer_dashboard')
+        elif profile.role == 'registrar':
+            return redirect('registrar_dashboard')
+    except UserProfile.DoesNotExist:
+        # Ikitokea akaunti haina wasifu (UserProfile), inamrudisha kwenye login safi
+        return redirect('login')
+    
+    return redirect('login')
+
+
+@login_required
+def student_dashboard(request):
+    """
+    Dashboard ya Mwanafunzi: Kuona hali ya clearance na kutuma maombi mapya.
+    """
+    # Hakikisha ni mwanafunzi kweli
+    if request.user.userprofile.role != 'student':
+        return redirect('dashboard_redirect')
+        
+    profile = request.user.userprofile
+    # Kupata ombi la mwisho la mwanafunzi huyu
+    current_request = ClearanceRequest.objects.filter(student=request.user).order_by('-created_at').first()
+    
+    approvals = []
+    if current_request:
+        approvals = DepartmentalApproval.objects.filter(request=current_request)
+        
+    if request.method == 'POST':
+        if current_request and current_request.get_status() == 'Pending':
+            messages.warning(request, "Tayari una ombi linalofanyiwa kazi kwa sasa.")
+            return redirect('student_dashboard')
+            
+        academic_year = request.POST.get('academic_year', '2025/2026')
+        reason = request.POST.get('reason', 'Graduation')
+        
+        # Kutengeneza ombi kuu jipya
+        new_request = ClearanceRequest.objects.create(
+            student=request.user,
+            academic_year=academic_year,
+            reason=reason
+        )
+        
+        # Mfumo unajigawa kiotomatiki kwenda kwenye Idara kuu 3
+        departments = ['Library', 'Finance', 'ICT']
+        for dept in departments:
+            DepartmentalApproval.objects.create(
+                request=new_request,
+                department=dept,
+                status='Pending'
+            )
+            
+        messages.success(request, "Ombi lako la clearance limetumwa kikamilifu kwenye idara zote!")
+        return redirect('student_dashboard')
+        
+    context = {
+        'profile': profile,
+        'current_request': current_request,
+        'approvals': approvals
+    }
+    return render(request, 'dashboard/student.html', context)
+
+
+@login_required
+def officer_dashboard(request):
+    """
+    Dashboard ya Maafisa wa Idara: Kuona na kuidhinisha (Approve/Reject) maombi ya idara zao pekee.
+    """
+    if request.user.userprofile.role != 'officer':
+        return redirect('dashboard_redirect')
+        
+    profile = request.user.userprofile
+    officer_dept = profile.department  # Mfano: 'Library', 'Finance', au 'ICT'
+    
+    # Kuchuja maombi yanayohusu idara hii tu
+    pending_approvals = DepartmentalApproval.objects.filter(department=officer_dept, status='Pending').select_related('request__student')
+    history_approvals = DepartmentalApproval.objects.filter(department=officer_dept).exclude(status='Pending').select_related('request__student')
+    
+    if request.method == 'POST':
+        approval_id = request.POST.get('approval_id')
+        action = request.POST.get('action')  # 'Approved' au 'Rejected'
+        comments = request.POST.get('comments', '')
+        
+        approval = get_object_or_404(DepartmentalApproval, id=approval_id, department=officer_dept)
+        approval.status = action
+        approval.comments = comments
+        approval.actioned_by = request.user
+        approval.save()
+        
+        messages.success(request, f"Ombi limeidhinishwa kama: {action}")
+        return redirect('officer_dashboard')
+        
+    context = {
+        'profile': profile,
+        'pending_approvals': pending_approvals,
+        'history_approvals': history_approvals
+    }
+    return render(request, 'dashboard/officer.html', context)
+
+
+@login_required
+def registrar_dashboard(request):
+    """
+    Dashboard ya Msajili (Registrar): Kuona hali ya mwisho ya wanafunzi wote waliofanya clearance.
+    """
+    if request.user.userprofile.role != 'registrar':
+        return redirect('dashboard_redirect')
+        
+    profile = request.user.userprofile
+    all_requests = ClearanceRequest.objects.all().order_by('-created_at').select_related('student')
+    
+    context = {
+        'profile': profile,
+        'all_requests': all_requests
+    }
+    return render(request, 'dashboard/registrar.html', context)
