@@ -8,38 +8,46 @@
     <style>
         body {
             background-color: #f4f6f9;
-            height: 100vh;
+            /* 2. SULUHISHO LA UREFU: min-height inazuia kadi kukatwa kwa chini kwenye skrini fupi za simu */
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px 0; /* Inatoa nafasi ya juu na chini skrini ikiwa ndogo */
         }
         .login-card {
             border: none;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            background-color: #ffffff;
         }
         .btn-primary {
-            background-color: #0d6efd;
+            background-color: #1a237e; /* Rangi imara na ya kitaalamu (Navy Blue) */
             border: none;
+            transition: background-color 0.2s ease;
         }
         .btn-primary:hover {
-            background-color: #0b5ed7;
+            background-color: #0d1b60;
+        }
+        /* Kurekebisha p-2.5 ya zamani ambayo haipo kwenye Bootstrap ya kawaida */
+        .custom-input {
+            padding: 10px 12px !important;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
+    <div class="row justify-content-center m-0">
+        <div class="col-11 col-sm-9 col-md-6 col-lg-4 p-0">
             <div class="card login-card p-4">
                 <div class="text-center mb-4">
                     <h3 class="fw-bold text-dark">Student Clearance System</h3>
-                    <p class="text-muted">Sign in to start your session</p>
+                    <p class="text-muted small">Sign in to start your session</p>
                 </div>
 
                 {% if form.errors %}
-                    <div class="alert alert-danger text-center" role="alert">
+                    <div class="alert alert-danger text-center small py-2" role="alert">
                         Invalid username or password! Please try again.
                     </div>
                 {% endif %}
@@ -48,20 +56,20 @@
                     {% csrf_token %}
                     
                     <div class="mb-3">
-                        <label for="id_username" class="form-label fw-semibold">Username / Reg Number</label>
-                        <input type="text" name="username" id="id_username" class="form-control p-2.5" placeholder="Enter your username" required>
+                        <label for="id_username" class="form-label fw-semibold small text-secondary">Username / Reg Number</label>
+                        <input type="text" name="username" id="id_username" class="form-control custom-input" placeholder="Enter your username" required>
                     </div>
 
                     <div class="mb-4">
-                        <label for="id_password" class="form-label fw-semibold">Password</label>
-                        <input type="password" name="password" id="id_password" class="form-control p-2.5" placeholder="Enter your password" required>
+                        <label for="id_password" class="form-label fw-semibold small text-secondary">Password</label>
+                        <input type="password" name="password" id="id_password" class="form-control custom-input" placeholder="Enter your password" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 p-2.5 fw-bold text-uppercase">Sign In</button>
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold text-uppercase shadow-sm">Sign In</button>
                 </form>
 
                 <div class="text-center mt-4">
-                    <small class="text-muted">&copy; 2026 Online Student Clearance System</small>
+                    <small class="text-muted" style="font-size: 0.75rem;">&copy; 2026 Online Student Clearance System</small>
                 </div>
             </div>
         </div>

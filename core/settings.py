@@ -163,8 +163,8 @@ AXES_COOLOFF_TIME = datetime.timedelta(minutes=3)
 # Inamfungia mtumiaji kulingana na mchanganyiko wa Username yake na IP ya kompyuta yake
 AXES_LOCKOUT_BY_COMBINATION = True
 
-# Ukurasa maalum wa kumwambia amefungiwa
-AXES_LOCKOUT_TEMPLATE = 'lockout.html'
+# === SULUHISHO: Kwa kuwa 'dashboard' ni FOLDER, lazima iandikwe 'dashboard/lockout.html' ===
+AXES_LOCKOUT_TEMPLATE = 'dashboard/lockout.html'
 
 # Ukishafanikiwa ku-login, majaribio yaliyofeli ya nyuma yanafutika kiotomatiki
 AXES_RESET_ON_SUCCESS = True

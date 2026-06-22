@@ -1,3 +1,4 @@
+import datetime  # Nyongeza: Muhimu kwa ajili ya kuzalisha miaka dynamically
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -26,13 +27,26 @@ def dashboard_redirect_view(request):
 @login_required
 def student_dashboard(request):
     """
-    Dashboard ya Mwanafunzi: Kuona hali ya clearance na kutuma maombi mapya.
+    Dashboard ya Mwanafunzi: Kuona hali ya clearance na kutuma maombi mapya dynamically.
     """
     # Hakikisha ni mwanafunzi kweli
     if request.user.userprofile.role != 'student':
         return redirect('dashboard_redirect')
         
     profile = request.user.userprofile
+    
+    # KUZALISHA MIAKA DYNAMICALLY:
+    # Inasoma mwaka wa sasa wa kalenda (kama ni 2026, itasoma 2026)
+    current_year = datetime.date.today().year
+    
+    # Inatengeneza muundo wa miaka ya masomo ya chuo (Academic Years kama '2025/2026', '2026/2027')
+    # Loop hii inatengeneza miaka miwili ya nyuma na miaka minne ya mbele
+    years_range = []
+    for y in range(current_year - 2, current_year + 4):
+        next_year = y + 1
+        academic_format = f"{y}/{next_year}"  # Inazalisha mfumo wa "2025/2026"
+        years_range.append(academic_format)
+        
     # Kupata ombi la mwisho la mwanafunzi huyu
     current_request = ClearanceRequest.objects.filter(student=request.user).order_by('-created_at').first()
     
@@ -45,13 +59,15 @@ def student_dashboard(request):
             messages.warning(request, "Tayari una ombi linalofanyiwa kazi kwa sasa.")
             return redirect('student_dashboard')
             
-        academic_year = request.POST.get('academic_year', '2025/2026')
+        # SULUHISHO: Inasoma uwanja uliochaguliwa na mwanafunzi, isipoupa inaweka mwaka wa sasa kama backup
+        default_academic_format = f"{current_year}/{current_year + 1}"
+        academic_year = request.POST.get('academic_year', default_academic_format)
         reason = request.POST.get('reason', 'Graduation')
         
-        # Kutengeneza ombi kuu jipya
+        # Kutengeneza ombi kuu jipya la clearance
         new_request = ClearanceRequest.objects.create(
             student=request.user,
-            academic_year=academic_year,
+            academic_year=academic_year,  # Hifadhi ule mwaka uliochaguliwa dynamic
             reason=reason
         )
         
@@ -70,7 +86,9 @@ def student_dashboard(request):
     context = {
         'profile': profile,
         'current_request': current_request,
-        'approvals': approvals
+        'approvals': approvals,
+        'years_range': years_range,        # Nyongeza: Imetumwa ili HTML iweze kuizungusha (loop)
+        'current_academic_year': f"{current_year}/{current_year + 1}" # Inatumika kuweka pre-selected chaguo la sasa
     }
     return render(request, 'dashboard/student.html', context)
 
