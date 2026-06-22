@@ -171,6 +171,13 @@ AXES_RESET_ON_SUCCESS = True
 
 
 # ==============================================================================
+#           === SULUHISHO LA HARAKA: ZIMA AXES KWA MUDA WA MAJARIBIO ===
+# ==============================================================================
+AXES_ENABLED = False
+AXES_LOCKOUT_BY_COMBINATION_USER_AND_IP = False
+
+
+# ==============================================================================
 #            MIPANGILIO YA USALAMA MTANDAONI (KUZUIA KUJIKATA KWA LOGIN)
 # ==============================================================================
 CSRF_TRUSTED_ORIGINS = [
@@ -180,7 +187,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
 ]
 
-# Usalama wa Session na Cookies kwenye HTTPS (Dynamic Environment Switch)
+# Usalama wa Session Na Cookies kwenye HTTPS (Dynamic Environment Switch)
 if 'DATABASE_URL' in os.environ:
     # Haya yanawaka tukiwa laivu Render yenye SSL (HTTPS)
     SESSION_COOKIE_SECURE = True
