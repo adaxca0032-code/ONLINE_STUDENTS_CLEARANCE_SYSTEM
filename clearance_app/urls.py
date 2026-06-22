@@ -1,8 +1,23 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from . import views
 
+# === MBINU YA KUTENGEZA ADMIN MTANDAONI BILA TERM_INAL YA RENDER ===
+def tengeneza_admin_wa_render(request):
+    User = get_user_model()
+    # Inakagua kama user huyu hayupo mtandaoni, ndipo inamtengeneza
+    if not User.objects.filter(username='admin_online').exists():
+        User.objects.create_superuser('admin_online', 'admin@example.com', 'Mussa@2026')
+        return HttpResponse("Hongera Skillfully Man! Akaunti ya 'admin_online' imetengenezwa mtandaoni!")
+    return HttpResponse("Akaunti ya 'admin_online' tayari ipo mtandaoni!")
+
+
 urlpatterns = [
+    # Njia ya mkato ya kutengeneza akaunti ya admin kule Render (Ibonyeze mara moja tu ukiwa mtandaoni)
+    path('tengeneza-admin/', tengeneza_admin_wa_render, name='tengeneza_admin_wa_render'),
+
     # 1. Njia kuu ya mfumo (Inachuja kama ni mwanafunzi au afisa na kumuelekeza sehemu husika)
     path('', views.dashboard_redirect_view, name='dashboard_redirect'),
     
