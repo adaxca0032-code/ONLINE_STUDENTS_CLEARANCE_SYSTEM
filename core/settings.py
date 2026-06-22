@@ -21,14 +21,13 @@ SECRET_KEY = 'django-insecure-8woy^^+*w%n4t5!oow51wnoneh_uqn^2-gtm)-fx2==3))8*k#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# === LINK YAKO YA RENDER IMEONGEZWA HAPA KUTATUA KILE KOSA ===
+# === LINK YAKO YA RENDER NA IP YA SIMU ZIMEUNGANISHWA HAPA KUTATUA KILE KOSA ===
 ALLOWED_HOSTS = [
-    'online-students-clearance-system.onrender.com',
-    '127.0.0.1',
-    'localhost',
-    '*'
+    'online-students-clearance-system.onrender.com',  # Server ya laivu mtandaoni (Render)
+    '192.168.100.121',                               # IP yako ya sasa hivi ya Wi-Fi (Kwa ajili ya simu yako)
+    '127.0.0.1',                                      # Localhost IP
+    'localhost',                                      # Localhost Domain
 ]
-
 
 # Application definition
 
@@ -82,14 +81,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 
-# Database
-# Mipangilio salama ya PostgreSQL (Inasoma link toka Render Environment Variables kuzuia data kuchanganyika na watu wengine)
-DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://postgres:postgres@localhost:5432/clearance',
-        conn_max_age=600
-    )
-}
+# ==============================================================================
+#             DATABASE CONFIGURATION (AUTOMATIC SWITCH: LOCAL vs RENDER)
+# ==============================================================================
+if 'DATABASE_URL' in os.environ:
+    # Ukurasa upo Render - Tumia PostgreSQL ya Mtandaoni kwa Usalama
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600
+        )
+    }
+else:
+    # Upo kwenye kompyuta yako (Localhost) - Tumia SQLite ya kawaida usikwame
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -166,10 +175,20 @@ AXES_RESET_ON_SUCCESS = True
 # ==============================================================================
 CSRF_TRUSTED_ORIGINS = [
     'https://online-students-clearance-system.onrender.com',
+    'http://192.168.100.121:8000',  # Imetatua kosa la CSRF kwenye mtandao wa ndani
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
 ]
 
-# Usalama wa Session na Cookies kwenye HTTPS (Render Server)
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Usalama wa Session na Cookies kwenye HTTPS (Dynamic Environment Switch)
+if 'DATABASE_URL' in os.environ:
+    # Haya yanawaka tukiwa laivu Render yenye SSL (HTTPS)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    # Zima tukiwa Localhost/Simu chumbani ili isigome kwenye HTTP ya kawaida
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
