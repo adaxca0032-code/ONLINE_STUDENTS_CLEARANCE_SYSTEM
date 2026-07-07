@@ -15,11 +15,14 @@ SECRET_KEY = 'django-insecure-8woy^^+*w%n4t5!oow51wnoneh_uqn^2-gtm)-fx2==3))8*k#
 
 DEBUG = True
 
+# IMEBORESHWA: Kuruhusu Railway na Render kufanya kazi bila DisallowedHost error
 ALLOWED_HOSTS = [
+    'online-students-clearance-system-production-5c4d.up.railway.app',
     'online-students-clearance-system.onrender.com',
     '192.168.100.121',
     '127.0.0.1',
     'localhost',
+    '*',  # Inaruhusu host yoyote kwa usalama wa haraka ukiwa kwenye testing/development
 ]
 
 INSTALLED_APPS = [
@@ -111,7 +114,9 @@ AXES_RESET_ON_SUCCESS = True
 AXES_ENABLED = False # Zime kwa muda
 
 # SECURITY FIXES
+# IMEBORESHWA: Link ya Railway imeongezwa hapa kuzuia makosa ya CSRF verification kufeli
 CSRF_TRUSTED_ORIGINS = [
+    'https://online-students-clearance-system-production-5c4d.up.railway.app',
     'https://online-students-clearance-system.onrender.com',
 ]
 
