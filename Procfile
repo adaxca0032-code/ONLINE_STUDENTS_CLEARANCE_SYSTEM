@@ -1,1 +1,1 @@
-web: gunicorn jina_la_mradi.wsgi:application
+web: gunicorn core.wsgi --log-file -web: gunicorn jina_la_mradi.wsgi:application
